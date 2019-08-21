@@ -12,6 +12,14 @@ workspace(
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Install the nodejs "bootstrap" package
+# This provides the basic tools for running and packaging nodejs programs in Bazel
+http_archive(
+    name = "build_bazel_rules_nodejs",
+    sha256 = "6625259f9f77ef90d795d20df1d0385d9b3ce63b6619325f702b6358abb4ab33",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.35.0/rules_nodejs-0.35.0.tar.gz"],
+)
+
 # Install external Kotlin/Java dependencies
 http_archive(
     name = "rules_jvm_external",
@@ -35,22 +43,13 @@ maven_install(
     fetch_sources = True,   # Fetch source jars. Defaults to False.
 )
 
-# Install the nodejs "bootstrap" package
-# This provides the basic tools for running and packaging nodejs programs in Bazel
-http_archive(
-    name = "build_bazel_rules_nodejs",
-    sha256 = "6625259f9f77ef90d795d20df1d0385d9b3ce63b6619325f702b6358abb4ab33",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.35.0/rules_nodejs-0.35.0.tar.gz"],
-)
-
-# The yarn_install rule runs yarn anytime the package.json or yarn.lock file changes.
-# It also extracts and installs any Bazel rules distributed in an npm package.
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-yarn_install(
+# Install external npm dependencies
+load("@build_bazel_rules_nodejs//:defs.bzl", "npm_install")
+npm_install(
     # Name this npm so that Bazel Label references look like @npm//package
     name = "npm",
     package_json = "//:package.json",
-    yarn_lock = "//:yarn.lock",
+    package_lock_json = "//:package-lock.json",
 )
 
 # Install any Bazel rules which were extracted earlier by the yarn_install rule.

@@ -5,7 +5,7 @@ import kotlinx.html.dom.*
 fun printHello() {
     document.body!!.append.div {
         span {
-            +"Hello"
+            +"Hello from Kotlin"
         }
     }
 }
