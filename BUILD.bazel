@@ -1,0 +1,49 @@
+# Add rules here to build your software
+# See https://docs.bazel.build/versions/master/build-ref.html#BUILD_files
+
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_js_library", "kt_js_import")
+load("@build_bazel_rules_nodejs//:defs.bzl", "http_server", "rollup_bundle")
+load("@build_bazel_rules_nodejs//internal/web_package:web_package.bzl", "web_package")
+
+kt_js_import(
+    name = "kotlinx-html-js",
+    jars = ["@maven//:v1/http/dl.bintray.com/kotlin/kotlinx.html/org/jetbrains/kotlinx/kotlinx-html-js/0.6.12/kotlinx-html-js-0.6.12.jar"],
+    srcjar = "@maven//:v1/http/dl.bintray.com/kotlin/kotlinx.html/org/jetbrains/kotlinx/kotlinx-html-js/0.6.12/kotlinx-html-js-0.6.12-sources.jar"
+)
+
+kt_js_library(
+    # This will create hello.js
+    name = "hello",
+    srcs = [":HelloWorld.kt"],
+    deps = [":kotlinx-html-js"],
+)
+
+rollup_bundle(
+    name = "bundle",
+    entry_point = ":bootstrap.js",
+    srcs = [
+        ":hello",
+    ],
+    deps = [
+        "@npm//kotlin",
+        "@npm//kotlinx-html-js"
+    ],
+)
+
+web_package(
+    name = "package",
+    assets = [
+        # For differential loading, we supply both an ESModule entry point and an es5 entry point
+        # The injector will put two complimentary script tags in the index.html
+        ":bundle.min.js",
+        ":bundle.min.es2015.js",
+    ],
+    data = [":bundle"],
+    index_html = "index.html",
+)
+
+http_server(
+    name = "server",
+    data = [":package"],
+    templated_args = ["package"],
+)

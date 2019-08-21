@@ -1,0 +1,19 @@
+{
+    "name": "try_kotlin",
+    "version": "0.1.0",
+    "private": true,
+    "devDependencies": {
+        "@bazel/bazel": "latest",
+        "@bazel/buildifier": "latest",
+        "@bazel/ibazel": "latest"
+    },
+    "scripts": {
+        "build": "bazel build //...",
+        "test": "bazel test //...",
+        "serve": "ibazel run :server"
+    },
+    "dependencies": {
+        "kotlin": "^1.3.41",
+        "kotlinx-html-js": "^0.6.4"
+    }
+}
